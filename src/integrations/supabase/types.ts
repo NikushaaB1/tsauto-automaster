@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      oil_codes: {
+        Row: {
+          created_at: string
+          engine: string | null
+          id: string
+          notes: string | null
+          oil_code: string
+          oil_type: string | null
+          updated_at: string
+          vehicle_brand: string
+          vehicle_model: string | null
+          viscosity: string | null
+          year: string | null
+        }
+        Insert: {
+          created_at?: string
+          engine?: string | null
+          id?: string
+          notes?: string | null
+          oil_code: string
+          oil_type?: string | null
+          updated_at?: string
+          vehicle_brand: string
+          vehicle_model?: string | null
+          viscosity?: string | null
+          year?: string | null
+        }
+        Update: {
+          created_at?: string
+          engine?: string | null
+          id?: string
+          notes?: string | null
+          oil_code?: string
+          oil_type?: string | null
+          updated_at?: string
+          vehicle_brand?: string
+          vehicle_model?: string | null
+          viscosity?: string | null
+          year?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
