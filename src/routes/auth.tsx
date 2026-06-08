@@ -1,8 +1,8 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
-import { Loader2, LogIn, UserPlus, Mail, Lock } from "lucide-react";
+import { Loader2, LogIn, Mail, Lock, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -16,7 +16,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
@@ -38,66 +37,40 @@ function AuthPage() {
     setLoading(true);
     setError(null);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/dashboard` },
-        });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     } catch (err: any) {
-      setError(err.message ?? "შეცდომა");
+      setError(err.message ?? "შესვლა ვერ მოხერხდა");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-10">
+    <main className="min-h-dvh flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md animate-fade-up">
         <div className="flex justify-center mb-8">
           <Logo size="lg" />
         </div>
 
         <div className="glass-strong rounded-2xl p-8 shadow-elegant">
-          <div className="flex gap-2 mb-6 p-1 rounded-lg bg-muted/40">
-            <button
-              type="button"
-              onClick={() => setMode("login")}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-                mode === "login" ? "bg-primary text-primary-foreground shadow-glow-blue" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <LogIn className="inline w-4 h-4 mr-1.5" /> შესვლა
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("signup")}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-                mode === "signup" ? "bg-primary text-primary-foreground shadow-glow-blue" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <UserPlus className="inline w-4 h-4 mr-1.5" /> რეგისტრაცია
-            </button>
+          <div className="flex items-center gap-2 mb-6 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs">
+            <ShieldCheck className="w-4 h-4 shrink-0" />
+            <span>დახურული სისტემა — წვდომა მხოლოდ კომპანიის თანამშრომლებისთვის</span>
           </div>
 
-          <h1 className="text-2xl font-bold mb-1">
-            {mode === "login" ? "კეთილი იყოს" : "შექმენი ანგარიში"}
+          <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
+            <LogIn className="w-5 h-5 text-primary" />
+            ადმინისტრატორის შესვლა
           </h1>
           <p className="text-sm text-muted-foreground mb-6">
-            {mode === "login"
-              ? "შედი ადმინ პანელში მონაცემების სამართავად"
-              : "პირველი რეგისტრირებული მომხმარებელი ხდება ადმინი"}
+            შეიყვანე Gmail და პაროლი მონაცემთა ბაზის სამართავად
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Username (Email)
+                Gmail
               </label>
               <div className="relative mt-1.5">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -107,7 +80,7 @@ function AuthPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
-                  placeholder="admin@ts-auto.ge"
+                  placeholder="company@gmail.com"
                   autoComplete="username"
                 />
               </div>
@@ -127,22 +100,20 @@ function AuthPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-lg bg-input border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
                   placeholder="••••••••"
-                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  autoComplete="current-password"
                 />
               </div>
             </div>
 
-            {mode === "login" && (
-              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                  className="w-4 h-4 rounded border-border bg-input accent-primary"
-                />
-                დამიმახსოვრე
-              </label>
-            )}
+            <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="w-4 h-4 rounded border-border bg-input accent-primary"
+              />
+              დამიმახსოვრე
+            </label>
 
             {error && (
               <div className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
@@ -156,9 +127,13 @@ function AuthPage() {
               className="btn-premium w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {mode === "login" ? "შესვლა" : "რეგისტრაცია"}
+              შესვლა
             </button>
           </form>
+
+          <p className="text-xs text-muted-foreground mt-6 text-center">
+            ანგარიშის შექმნა გათიშულია. ახალი მომხმარებლის დასამატებლად დაუკავშირდი ადმინისტრატორს.
+          </p>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
